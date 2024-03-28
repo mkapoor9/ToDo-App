@@ -1,17 +1,21 @@
 const { createTodo,updateTodo } = require("./types");
 const { todos } = require("./db");
+const cors = require("cors");
+
+
 
 const express = require('express');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 const port = 3000;
 
 app.get('/todos',async (req,res)=>{
-    const todos = await todos.find();
+    const getTodos = await todos.find();
      res.json({
-        todos
+        getTodos
      })
 });
 
@@ -38,7 +42,7 @@ app.post('/todo',async (req,res)=>{
 })
 
 app.put('/completed',async (req,res)=>{
-    const update = req.body.json;
+    const update = req.body;
     const response = updateTodo.safeParse(update);
 
     if(!response.success){
@@ -46,13 +50,11 @@ app.put('/completed',async (req,res)=>{
             msg:"wrong inputs",
         })
         return;
-    }
+    } 
 
-    await todos.update({
-        _id:req.body.id,
-    },{
-        completed:true
-    }) 
+    await todos.findByIdAndUpdate(req.body.id,{
+        completed:true,
+    })
 
     res.json({
         msg:"Todo Marked as completed",
